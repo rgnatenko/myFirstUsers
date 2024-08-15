@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import Modal from '@/components/Modal'; // We'll create this component
 
@@ -12,6 +12,7 @@ interface Example {
 
 const MarketingDashboard = () => {
   const [selectedExample, setSelectedExample] = useState<Example | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   const categories = [
     { title: 'ACQUISITION', items: ['Content', 'SEO', 'Sales', 'Social', 'Ads'] },
@@ -28,6 +29,11 @@ const MarketingDashboard = () => {
     // Add more examples here
   ];
 
+  const filteredExamples = useMemo(() => {
+    if (!selectedFilter) return examples;
+    return examples.filter(example => example.tag === selectedFilter);
+  }, [selectedFilter, examples]);
+
   const openModal = (example: Example) => {
     setSelectedExample(example);
   };
@@ -39,7 +45,7 @@ const MarketingDashboard = () => {
   return (
     <div className="p-[5%] bg-white text-gray-800 min-h-screen">
       <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-4 sm:mb-0">MARKETING EXAMPLES</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-4 sm:mb-0">MY FIRST USERS</h1>
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <button className="bg-gray-200 hover:bg-gray-300 transition-colors px-4 py-2 rounded-lg text-sm text-gray-700">
             Get 6 new tips in your inbox every Monday
@@ -57,7 +63,15 @@ const MarketingDashboard = () => {
               <h2 className="font-bold text-lg mb-3 text-blue-600">{category.title}</h2>
               <div className="flex flex-wrap gap-2">
                 {category.items.map((item, itemIndex) => (
-                  <span key={itemIndex} className="bg-gray-200 hover:bg-gray-300 transition-colors px-3 py-1 rounded-full text-sm cursor-pointer text-gray-700">
+                  <span
+                    key={itemIndex}
+                    className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-colors ${
+                      selectedFilter === item
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    }`}
+                    onClick={() => setSelectedFilter(selectedFilter === item ? null : item)}
+                  >
                     {item}
                   </span>
                 ))}
@@ -67,7 +81,7 @@ const MarketingDashboard = () => {
         </div>
 
         <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {examples.map((example, index) => (
+          {filteredExamples.map((example, index) => (
             <Card 
               key={index} 
               className="bg-gray-100 hover:bg-gray-200 transition-colors p-6 rounded-xl shadow-md cursor-pointer"
